@@ -1,0 +1,11 @@
+# Node.js
+dashboard/node_modules/
+dashboard/.env
+
+# Python
+bot/.venv/
+bot/__pycache__/
+bot/.env
+
+# Docker
+*.log
