@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Coffey.ai - Giveaway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+    <div class="max-w-2xl w-full p-6 bg-gray-800 rounded-lg shadow-lg text-center">
+        <h1 class="text-4xl font-bold mb-4">🎉 Lancer un Giveaway</h1>
+
+        <form method="POST" action="/start-giveaway" class="flex flex-col space-y-4 text-left">
+            <select name="channel" id="channel" required
+                    class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                <option value="">Chargement des salons...</option>
+            </select>
+
+            <input type="number" name="duration" placeholder="Durée en minutes" required
+                   class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+
+            <input type="number" name="winners" placeholder="Nombre de gagnants" required
+                   class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+
+            <input type="text" name="prize" placeholder="Prix à gagner" required
+                   class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
+                Lancer le Giveaway
+            </button>
+        </form>
+
+        <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded mt-4 inline-block">
+            Retour au Dashboard
+        </a>
+    </div>
+
+    <script>
+        fetch('/channels')
+            .then(res => res.json())
+            .then(channels => {
+                const select = document.getElementById('channel');
+                select.innerHTML = '';
+
+                const categories = channels.filter(c => c.type === 4);
+                const textChannels = channels.filter(c => c.type === 0);
+
+                categories.forEach(category => {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = category.name;
+
+                    textChannels
+                        .filter(c => c.parentId === category.id)
+                        .forEach(c => {
+                            const option = document.createElement('option');
+                            option.value = c.id;
+                            option.textContent = c.name;
+                            optgroup.appendChild(option);
+                        });
+
+                    if (optgroup.children.length > 0) {
+                        select.appendChild(optgroup);
+                    }
+                });
+
+                const noCategory = textChannels.filter(c => !c.parentId);
+                if (noCategory.length > 0) {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = "Sans catégorie";
+
+                    noCategory.forEach(c => {
+                        const option = document.createElement('option');
+                        option.value = c.id;
+                        option.textContent = c.name;
+                        optgroup.appendChild(option);
+                    });
+
+                    select.appendChild(optgroup);
+                }
+            })
+            .catch(err => {
+                console.error('Erreur de chargement des salons:', err);
+            });
+    </script>
+</body>
+</html>

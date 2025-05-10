@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Coffey.ai - Reaction Roles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+    <div class="max-w-2xl w-full p-6 bg-gray-800 rounded-lg shadow-lg text-center">
+        <h1 class="text-4xl font-bold mb-4">☕ Gestion des Reaction Roles</h1>
+
+        <form method="POST" action="/send-reaction-roles" class="flex flex-col space-y-4 text-left">
+            <input type="text" name="title" placeholder="Titre de l'embed" required
+                   class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+
+            <textarea name="description" placeholder="Description de l'embed" required
+                      class="p-2 rounded bg-gray-700 border border-gray-600 text-white"></textarea>
+
+            <select name="channel" id="channel" required
+                    class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                <option value="">Chargement des salons...</option>
+            </select>
+
+            <select name="roles" id="roles" multiple required
+                    class="p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                <option value="">Chargement des rôles...</option>
+            </select>
+
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+                Envoyer les Reaction Roles
+            </button>
+        </form>
+
+        <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded mt-4 inline-block">
+            Retour au Dashboard
+        </a>
+    </div>
+
+    <script>
+        // Chargement des salons
+        fetch('/channels')
+            .then(res => res.json())
+            .then(channels => {
+                const select = document.getElementById('channel');
+                select.innerHTML = '';
+                const categories = channels.filter(c => c.type === 4);
+                const textChannels = channels.filter(c => c.type === 0);
+
+                categories.forEach(category => {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = category.name;
+
+                    textChannels
+                        .filter(c => c.parentId === category.id)
+                        .forEach(c => {
+                            const option = document.createElement('option');
+                            option.value = c.id;
+                            option.textContent = c.name;
+                            optgroup.appendChild(option);
+                        });
+
+                    if (optgroup.children.length > 0) {
+                        select.appendChild(optgroup);
+                    }
+                });
+
+                const noCategory = textChannels.filter(c => !c.parentId);
+                if (noCategory.length > 0) {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = "Sans catégorie";
+                    noCategory.forEach(c => {
+                        const option = document.createElement('option');
+                        option.value = c.id;
+                        option.textContent = c.name;
+                        optgroup.appendChild(option);
+                    });
+                    select.appendChild(optgroup);
+                }
+            })
+            .catch(err => console.error('Erreur de chargement des salons:', err));
+
+        // Chargement des rôles
+        fetch('/roles')
+            .then(res => res.json())
+            .then(roles => {
+                const select = document.getElementById('roles');
+                select.innerHTML = '';
+                roles.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r.id;
+                    option.textContent = r.name;
+                    select.appendChild(option);
+                });
+            })
+            .catch(err => console.error('Erreur de chargement des rôles:', err));
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Historique des Giveaways - Coffey.ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-8">
+
+    <h1 class="text-4xl font-bold mb-6">🎉 Historique des Giveaways</h1>
+
+    <%
+    function formatDate(isoDate) {
+        const date = new Date(isoDate);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} à ${hours}:${minutes}`;
+    }
+    %>
+
+    <div class="w-full max-w-4xl">
+        <table class="table-auto w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-700">
+                    <th class="p-2 border">#</th>
+                    <th class="p-2 border">Salon</th>
+                    <th class="p-2 border">Prix</th>
+                    <th class="p-2 border">Gagnants</th>
+                    <th class="p-2 border">Durée (min)</th>
+                    <th class="p-2 border">Date</th>
+                    <th class="p-2 border">Gagnant(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% giveaways.forEach(giveaway => { %>
+                    <tr class="bg-gray-800 border-b">
+                        <td class="p-2 border"><%= giveaway.id %></td>
+                        <td class="p-2 border"><%= giveaway.channelName %></td>
+                        <td class="p-2 border"><%= giveaway.prize %></td>
+                        <td class="p-2 border"><%= giveaway.winners %></td>
+                        <td class="p-2 border"><%= giveaway.duration %></td>
+                        <td class="p-2 border"><%= formatDate(giveaway.date) %></td>
+                        <td class="p-2 border"><%= giveaway.winnerDisplay %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="text-2xl font-bold mt-12 mb-4">🏆 Top 10 des Gagnants</h2>
+    <canvas id="winnersChart" width="600" height="400"></canvas>
+
+    <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded mt-6 inline-block">
+        Retour au Dashboard
+    </a>
+
+    <script>
+        const ctx = document.getElementById('winnersChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: <%- JSON.stringify(topWinners.map(w => w.name)) %>,
+                datasets: [{
+                    label: 'Nombre de victoires',
+                    data: <%- JSON.stringify(topWinners.map(w => w.count)) %>,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true, precision: 0 }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
